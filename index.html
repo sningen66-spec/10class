@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Логические операции — тренажёр</title>
+<style>
+:root{--bg:#f3f7fc;--ink:#1e293b;--muted:#5b6b82;--accent:#2563eb;--line:#c9d6e8;--ok:#dcfce7;--okb:#16a34a;--err:#fde68a;--errb:#d97706;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Times New Roman",Times,serif;font-size:20px;}
+header{background:linear-gradient(90deg,#dbeafe,#ede9fe);border-bottom:2px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:26px;margin:0;color:#1e3a8a}
+.who{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.who label{font-size:17px;color:var(--muted)}
+.who input{font:inherit;font-size:19px;padding:6px 10px;border:2px solid var(--line);border-radius:8px;width:230px;background:#fff}
+.who select#cls{font:inherit;font-size:19px;padding:5px 8px;border:2px solid var(--line);border-radius:8px;background:#fff;min-width:80px}
+.who input:disabled,.who select:disabled{background:#eef2f7;color:var(--ink)}
+main{max-width:1150px;margin:0 auto;padding:16px}
+.f,.expr,.stmt{font-family:"Cambria Math","Times New Roman",serif}
+h2{color:#1e3a8a;margin:6px 0}
+.intro{font-size:20px;color:var(--muted);margin:4px 0 16px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.tile:hover{border-color:var(--accent);box-shadow:0 3px 10px #2563eb22}
+.tile b{display:block;font-size:22px;color:#1e3a8a;margin-bottom:6px}
+.tile span{display:block;color:var(--muted);font-size:17px}
+.tile small{display:block;margin-top:8px;font-size:16px;color:#0f766e}
+.tile.ctrl{background:#fff7e0;border-color:#f5b942}
+.tile.help{background:#ecfdf5;border-color:#6ee7b7}
+.btn{font:inherit;font-size:20px;padding:9px 18px;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.btn.sec{background:#fff;color:var(--accent)}
+.btn.mini{font-size:17px;padding:5px 12px}
+.btn:disabled{opacity:.45;cursor:default}
+.pagetop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pagetop h2{flex:1}
+.cnav{display:flex;gap:6px;flex-wrap:wrap}
+.cn{font:inherit;font-size:19px;font-weight:bold;width:40px;height:40px;border-radius:50%;border:2px solid #9fb3cc;background:#fff;color:#1e3a8a;cursor:pointer}
+.cn.part{background:#dbeafe;border-color:#93b4e8}
+.cn.done{background:#2563eb;border-color:#2563eb;color:#fff}
+.cn.cur{box-shadow:0 0 0 3px #f5b942}
+.step{font-size:18px;color:#92400e;background:#fff7e0;border:2px solid #f5b942;border-radius:8px;padding:4px 10px}
+.task{color:#1d4ed8;font-size:24px;text-align:center;margin:12px 0 14px}
+.foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 30px;padding-top:12px;border-top:2px dashed var(--line)}
+.msg{flex:1;font-size:19px;min-width:220px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+/* выпадающие списки */
+select.pick{font-family:"Times New Roman",serif;font-size:24px;font-weight:bold;color:#1e3a8a;padding:2px 6px;border:2px solid #9fb3cc;border-radius:8px;background:#fff;cursor:pointer;min-width:64px;text-align:center;vertical-align:middle}
+select.pick:disabled{opacity:1;color:#1e3a8a;cursor:default}
+select.pick.ok{border-color:var(--okb);background:var(--ok)}
+select.pick.err{border-color:var(--errb);background:var(--err)}
+select.pick.wide{font-size:20px;font-weight:normal;min-width:240px;margin-top:10px;color:var(--ink)}
+.warn{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#fff7e0;border:2px solid #f5b942;border-radius:12px;padding:12px 18px;font-size:20px;z-index:20;box-shadow:0 4px 16px #0002;max-width:92vw;display:none}
+.warn.show{display:block}
+/* tables */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.tcard,.rcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-align:center}
+.tname{font-size:22px;margin-bottom:6px}
+table.tt{border-collapse:collapse;margin:0 auto;font-size:24px}
+table.tt th,table.tt td{border:2px solid #9fb3cc;padding:3px 12px;min-width:44px}
+table.tt th{background:#eef4ff}
+table.tt td.res{padding:3px 6px}
+.tcard.ok,.rcard.ok,.row.ok{border-color:var(--okb);background:#f0fdf4}
+.tcard.err,.rcard.err,.row.err{border-color:var(--errb);background:#fffbeb}
+/* recognition */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.rnum{font-size:19px;color:var(--muted);margin-bottom:4px}
+.choices{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.choice{font:inherit;font-size:18px;padding:5px 10px;border:2px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.choice .f{font-size:22px;color:#1d4ed8}
+.choice.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.choice.sel .f{color:#fff}
+/* rows */
+.row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 14px;margin:10px 0}
+.num{color:var(--muted);font-size:20px;min-width:28px}
+.stmt{font-size:24px}
+.eqs{font-size:28px}
+.expr{display:inline-block;font-size:30px;line-height:1.3;white-space:nowrap;padding:30px 4px 4px}
+.opw{position:relative;display:inline-block;padding:0 3px;border-radius:6px;line-height:1.3}
+.opw.bin{margin:0 .22em}
+.badge{position:absolute;left:50%;transform:translateX(-50%);top:-28px;font-family:"Times New Roman",serif;font-size:16px;min-width:22px;height:22px;line-height:19px;border:1.5px solid #94a3b8;background:#fff;border-radius:5px;text-align:center;color:var(--ink)}
+.badge:empty{display:none}
+.tap{cursor:pointer;background:#eef4ff;box-shadow:0 0 0 2px #bfdbfe}
+.tap:hover{background:#dbeafe}
+.tap .badge:empty{display:block;border-style:dashed;background:transparent}
+.badge.ok{background:var(--ok);border-color:var(--okb)}
+.badge.err{background:var(--err);border-color:var(--errb)}
+.sym{font-family:"Cambria Math","Segoe UI Symbol","DejaVu Sans",sans-serif}
+.ov{text-decoration:overline;text-decoration-thickness:2px}
+.exprwrap{overflow-x:auto;max-width:100%}
+/* results */
+table.res{border-collapse:collapse;font-size:21px;margin:10px 0;background:#fff}
+table.res td,table.res th{border:2px solid var(--line);padding:6px 14px}
+table.res th{background:#eef4ff}
+.grade{font-size:30px;margin:14px 0}
+.grade b{font-size:44px;color:#1d4ed8}
+.sendst{margin-top:12px;font-size:20px;padding:8px 12px;border-radius:10px;background:#eef4ff;border:2px solid var(--line)}
+.sendst:empty{display:none}
+.sendst.ok{background:#f0fdf4;border-color:var(--okb)}
+.sendst.err{background:#fff7e0;border-color:#f5b942}
+/* help */
+.overlay{position:fixed;inset:0;background:#1e293b55;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 10px;z-index:10}
+.overlay.show{display:flex}
+.hbox{background:#fff;border-radius:16px;max-width:1050px;width:100%;padding:18px 22px;position:relative}
+.hclose{position:sticky;top:0;float:right}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:12px 0}
+.hcard{border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfdff}
+.hname{font-size:22px;font-weight:bold;color:#1e3a8a}
+.hname .f{color:#7c3aed;font-size:26px}
+.hrule{margin:6px 0;color:#0f766e}
+table.tt.small{font-size:20px;margin-top:6px}
+.halt{font-size:17px;color:var(--muted)}
+.hex{margin-top:8px;font-size:18px;text-align:left;background:#f5f8ff;border-radius:8px;padding:6px 8px}
+.hsteps li{margin:3px 0}
+.hnote{background:#fff7e0;border:2px solid #f5b942;border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.hnote ul{margin:6px 0;padding-left:22px}
+.hnote li{margin:4px 0}
+@media (max-width:600px){
+ body{font-size:18px}
+ .expr{font-size:25px}
+ .stmt{font-size:20px}
+ .who input{width:170px}
+ header h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>Логические операции</h1>
+ <div class="who">
+  <label for="fio">Фамилия, имя</label><input id="fio" autocomplete="off" spellcheck="false">
+  <label for="cls">Класс</label><select id="cls"><option value="">—</option><option>10А</option><option>10Б</option></select>
+ </div>
+</header>
+<main></main>
+<div class="warn" id="warn"></div>
+<div class="overlay" id="help"><div class="hbox" id="hbox"></div></div>
+
+<script>
+/* ===== Адрес веб-приложения Google Apps Script (результаты контрольной → Google-таблица) =====
+   Вставьте между кавычками адрес из «Развернуть → Новое развертывание», он заканчивается на /exec.
+   Если оставить пустым, результат сохраняется только в файл .txt. */
+/* Прежний адрес (заменён на ваш): https://script.google.com/macros/s/AKfycbyMyY3UW9jhAYsJICVh6UY3t2steb0W6HdSdBd0YwhYslvCCWAK_HTmYxM29L2B1vgt/exec */
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzwmjNaAmsLm8Bvb-OhNzS_cLh6sXVSsqMaOk5CRCxr_cVqsIFsW9M0MHMJsKDNqPdl/exec';
+
+/* ===== Обозначения (меняются здесь) ===== */
+const OPS={
+ not:{s:'¬',name:'инверсия',read:'не A',rule:'меняет значение на противоположное. Иногда обозначают чертой сверху: <span class="ov f">A</span> = ¬A',
+  alt:'<span class="ov">A</span> · НЕ A · not A',ex:'A = «Сегодня понедельник», ¬A = «Сегодня НЕ понедельник».'},
+ and:{s:'∧',name:'конъюнкция',p:2,f:(a,b)=>a&b,read:'A и B',rule:'истинна (1), только когда оба высказывания истинны (логическое умножение)',
+  alt:'A &amp; B · A · B · A and B',ex:'«Пойду на каток, если сделаю уроки И будет хорошая погода». Не выполнено хотя бы одно — не пойду.'},
+ or:{s:'∨',name:'дизъюнкция',p:3,f:(a,b)=>a|b,read:'A или B',rule:'ложна (0), только когда оба высказывания ложны (логическое сложение)',
+  alt:'A | B · A + B · A or B',ex:'«В субботу схожу в кино ИЛИ в парк». Достаточно хотя бы одного — а можно и туда, и туда.'},
+ xor:{s:'⊕',name:'исключающее ИЛИ',p:3,f:(a,b)=>a^b,read:'либо A, либо B',rule:'истинно (1), когда значения высказываний разные',
+  alt:'A XOR B · A ^ B',ex:'«На олимпиаде ученик получает либо диплом I степени, либо диплом II степени». Оба диплома за одно участие получить нельзя.'},
+ imp:{s:'→',name:'импликация',p:4,f:(a,b)=>(1-a)|b,read:'если A, то B',rule:'проверяет, соблюдается ли правило «если A, то B». Ложна (0), только когда из истины следует ложь: 1 → 0',
+  alt:'A ⇒ B',ex:'«Если ученик дежурит по классу, то он должен полить цветы». Не дежурил — правило не нарушено (1). Дежурил и полил — всё правильно (1). Дежурил, но не полил — правило нарушено (0).'},
+ eq:{s:'↔',name:'эквивалентность',p:5,f:(a,b)=>a===b?1:0,read:'A тогда и только тогда, когда B',rule:'истинна (1), когда значения высказываний одинаковые. Противоположность исключающего ИЛИ',
+  alt:'A ≡ B · A ⇔ B · A == B',ex:'«Число делится на 10 тогда и только тогда, когда оканчивается на 0». Оба утверждения всегда верны или неверны вместе.'}
+};
+const BIN=['and','or','xor','imp','eq'];
+const CONTROL_PLAN=[['tables',6],['recog',4],['stmt',6],['order',4],['consts',4],['values',4]];
+
+/* ===== утилиты ===== */
+const $=s=>document.querySelector(s);
+const R=n=>Math.floor(Math.random()*n);
+const pick=a=>a[R(a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function h(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function mark(el,ok){if(!el)return;el.classList.remove('ok','err');el.classList.add(ok?'ok':'err');}
+
+let cur=null, ctrl=null;
+const stats={};
+
+/* ===== выражения ===== */
+function ev(n,env){if(n.t==='v')return env[n.name];if(n.t==='c')return n.val;if(n.t==='n')return 1-ev(n.a,env);return OPS[n.op].f(ev(n.a,env),ev(n.b,env));}
+function build(size,leaf){
+ let node;
+ if(size===0) node=leaf();
+ else{
+  const k=R(size);
+  node={t:'b',op:pick(BIN),a:build(k,leaf),b:build(size-1-k,leaf)};
+  let g=0;
+  while(node.a.t==='v'&&node.b.t==='v'&&node.a.name===node.b.name&&g++<8) node.b=leaf();
+ }
+ if(Math.random()<(size===0?0.3:0.18)) node={t:'n',a:node};
+ return node;
+}
+function genExpr(min,max,leaf,overP){
+ for(let t=0;t<1000;t++){
+  const e=build(1+R(max),leaf);let id=0,cnt=0;
+  (function walk(n){
+   if(n.t==='n'||n.t==='b'){n.id=id++;cnt++;}
+   if(n.t==='n'){n.ov=n.a.t==='v'&&Math.random()<overP;walk(n.a);}
+   if(n.t==='b'){walk(n.a);walk(n.b);}
+  })(e);
+  if(cnt>=min&&cnt<=max) return e;
+ }
+}
+function tok(n,o){
+ const wrap=a=>[{k:'('},...a,{k:')'}];
+ if(n.t==='v') return [{k:'v',s:n.name}];
+ if(n.t==='c') return [{k:'c',s:String(n.val)}];
+ if(n.t==='n'){
+  if(n.a.t==='v'&&o.over&&n.ov) return [{k:'ov',s:n.a.name,id:n.id}];
+  const inner=tok(n.a,o);
+  return [{k:'op',op:'not',id:n.id},...(n.a.t==='b'?wrap(inner):inner)];
+ }
+ let L=tok(n.a,o),Rt=tok(n.b,o);const p=OPS[n.op].p;
+ if(n.a.t==='b'){const pa=OPS[n.a.op].p;if(pa>p||(pa===p&&(n.a.op!==n.op||n.op==='imp'||n.op==='eq')))L=wrap(L);}
+ if(n.b.t==='b'){if(OPS[n.b.op].p>=p)Rt=wrap(Rt);}
+ return [...L,{k:'op',op:n.op,id:n.id},...Rt];
+}
+function nest(tokens){let i=0;function lvl(){const items=[];while(i<tokens.length){const t=tokens[i++];if(t.k==='(')items.push({k:'g',items:lvl()});else if(t.k===')')return items;else items.push(t);}return items;}return lvl();}
+/* канонический порядок: скобки → ¬ перед скобкой → ¬ → ∧ → ∨,⊕ → → → ↔ ; слева направо */
+function levelOrder(items){
+ const res=[],done=new Set();
+ const isNot=j=>items[j]&&items[j].k==='op'&&items[j].op==='not'&&!done.has(j);
+ items.forEach((it,i)=>{if(it.k==='g'){res.push(...levelOrder(it.items));let j=i-1;while(isNot(j)){res.push(items[j].id);done.add(j);j--;}}});
+ items.forEach((it,i)=>{if(it.k==='v'||it.k==='c'||it.k==='ov'){if(it.k==='ov')res.push(it.id);let j=i-1;while(isNot(j)){res.push(items[j].id);done.add(j);j--;}}});
+ [['and'],['or','xor'],['imp'],['eq']].forEach(cl=>items.forEach(it=>{if(it.k==='op'&&cl.includes(it.op))res.push(it.id);}));
+ return res;
+}
+const canon=tokens=>levelOrder(nest(tokens));
+/* для каждой операции — операции, результаты которых ей нужны (её непосредственные операнды) */
+function depsOf(e){
+ const d={};const isOp=n=>n.t==='n'||n.t==='b';
+ (function walk(n){
+  if(!isOp(n))return;
+  const kids=n.t==='n'?[n.a]:[n.a,n.b];
+  d[n.id]=kids.filter(isOp).map(k=>k.id);kids.forEach(walk);
+ })(e);
+ return d;
+}
+function exprEl(tokens,onTap){
+ const el=h('span','expr'),ops={};
+ tokens.forEach(t=>{
+  if(t.k==='v'||t.k==='c') el.appendChild(h('span','lit',t.s));
+  else if(t.k==='('||t.k===')') el.appendChild(h('span','par',t.k));
+  else{
+   const w=h('span','opw'+(t.k==='op'&&t.op!=='not'?' bin':''));
+   w.appendChild(h('span','badge',''));
+   w.appendChild(t.k==='ov'?h('span','ov',t.s):h('span','sym',OPS[t.op].s));
+   if(onTap){w.classList.add('tap');w.tabIndex=0;w.onclick=()=>onTap(t.id);w.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onTap(t.id);}};}
+   ops[t.id]=w;el.appendChild(w);
+  }
+ });
+ return {el,ops};
+}
+const tkey=tokens=>tokens.map(t=>t.s||(t.op?OPS[t.op].s:t.k)).join('');
+const varLeaf=vars=>()=>({t:'v',name:pick(vars)});
+const constLeaf=()=>({t:'c',val:R(2)});
+
+/* ===== кнопки 0/1 ===== */
+function bitCtl(item){
+ const s=h('select','pick','<option value="">–</option><option value="0">0</option><option value="1">1</option>');
+ s.onchange=()=>{item.ans=s.value===''?null:+s.value;s.classList.remove('ok','err');const p=s.closest('.row,.tcard');if(p)p.classList.remove('ok','err');};
+ if(item.ans!=null)s.value=String(item.ans);
+ item.el=s;return s;
+}
+function lockInputs(){document.querySelectorAll('main select.pick').forEach(s=>s.disabled=true);}
+
+/* ===== высказывания ===== */
+function atom(){
+ const want=R(2);let text,val;
+ switch(R(5)){
+  case 0:{const a=2+R(8),b=2+R(8);let c=a+b;if(!want)c+=pick([-1,1,2]);text=`${a} + ${b} = ${c}`;val=c===a+b;break;}
+  case 1:{const x=1+R(20);let y=1+R(20);while(y===x)y=1+R(20);const sg=pick(['>','<']);text=`${x} ${sg} ${y}`;val=sg==='>'?x>y:x<y;break;}
+  case 2:{const n=2+R(40),w=pick(['чётное','нечётное']);text=`число ${n} — ${w}`;val=(n%2===0)===(w==='чётное');break;}
+  case 3:{const k=2+R(4);const n=want?k*(2+R(8)):k*(2+R(8))+1+R(k-1);text=`${n} делится на ${k}`;val=n%k===0;break;}
+  default:{const a=2+R(8),b=2+R(8);let c=a*b;if(!want)c+=pick([-1,1,a]);text=`${a} · ${b} = ${c}`;val=c===a*b;}
+ }
+ return {text,val:val?1:0};
+}
+
+/* ===== списки выражений (0/1 и A–D) ===== */
+function renderExprList(task,box){
+ if(!cur.control){
+  const hb=h('button','btn mini sec','Показать порядок действий');hb.style.marginBottom='6px';
+  hb.onclick=()=>{task.hint=!task.hint;hb.textContent=task.hint?'Скрыть порядок действий':'Показать порядок действий';
+   task.items.forEach(it=>it.canon.forEach((id,i)=>{it.ops[id].querySelector('.badge').textContent=task.hint?i+1:'';}));};
+  box.appendChild(hb);
+ }
+ task.items.forEach((it,k)=>{
+  const row=h('div','row');row.appendChild(h('span','num',(k+1)+')'));
+  const ex=exprEl(it.tokens);it.ops=ex.ops;
+  const w=h('span','exprwrap');w.appendChild(ex.el);row.appendChild(w);
+  row.appendChild(h('span','eqs f','='));row.appendChild(bitCtl(it));
+  it.row=row;box.appendChild(row);
+ });
+}
+function checkList(task){let s=0;task.items.forEach(it=>{const ok=it.ans===it.correct;if(ok)s++;mark(it.row,ok);mark(it.el,ok);});return {score:s,total:task.items.length};}
+const unansList=task=>task.items.filter(it=>it.ans==null).length;
+function exprItems(c,min,max,leaf,overP,env){
+ const items=[],keys=new Set();
+ while(items.length<c){
+  const e=genExpr(min,max,leaf,overP);const tokens=tok(e,{over:true});const k=tkey(tokens);
+  if(keys.has(k))continue;keys.add(k);
+  items.push({e,tokens,canon:canon(tokens),correct:ev(e,env||{}),ans:null});
+ }
+ return items;
+}
+
+/* ===== модули ===== */
+const MODULES=[
+{id:'tables',title:'Таблицы истинности',desc:'Заполнить таблицы истинности шести логических операций',
+ instr:()=>'В таблицах истинности заполните пустые ячейки',
+ gen(){
+  return {tables:shuffle(['and','or','xor','imp','eq','not']).map(op=>{
+   let rows;
+   if(op==='not') rows=R(2)?[[1],[0]]:[[0],[1]];
+   else{const asc=[[0,0],[0,1],[1,0],[1,1]];const v=R(3);rows=v===0?asc:v===1?asc.slice().reverse():shuffle(asc.slice());}
+   return {op,rows:rows.map(r=>({in:r,correct:op==='not'?1-r[0]:OPS[op].f(r[0],r[1]),ans:null}))};
+  })};
+ },
+ render(task,box){
+  const g=h('div','tgrid');
+  task.tables.forEach(t=>{
+   const c=h('div','tcard');c.appendChild(h('div','tname',OPS[t.op].name));
+   const tb=h('table','tt');
+   tb.innerHTML=t.op==='not'?'<tr><th>A</th><th class="f">¬A</th></tr>':`<tr><th>A</th><th>B</th><th class="f">A ${OPS[t.op].s} B</th></tr>`;
+   t.rows.forEach(r=>{const tr=h('tr');r.in.forEach(v=>tr.appendChild(h('td','',String(v))));const td=h('td','res');td.appendChild(bitCtl(r));tr.appendChild(td);tb.appendChild(tr);});
+   c.appendChild(tb);t.el=c;g.appendChild(c);
+  });
+  box.appendChild(g);
+ },
+ /* таблица без ошибок — 1 балл, с одной ошибкой — 0,5, с двумя и более — 0 */
+ check(task){let s=0;task.tables.forEach(t=>{let e=0;t.rows.forEach(r=>{const ok=r.ans===r.correct;mark(r.el,ok);if(!ok)e++;});mark(t.el,e===0);s+=e===0?1:e===1?0.5:0;});return {score:s,total:task.tables.length};},
+ unans:task=>task.tables.reduce((a,t)=>a+t.rows.filter(r=>r.ans==null).length,0)
+},
+{id:'recog',title:'Узнай операцию',desc:'По таблице истинности определить логическую операцию',
+ instr:()=>'Определите, какой логической операции соответствует каждая таблица',
+ gen(c=4){return {items:shuffle(BIN.slice()).slice(0,c).map(op=>({op,rows:shuffle([[0,0],[0,1],[1,0],[1,1]]),ans:null}))};},
+ render(task,box){
+  const g=h('div','rgrid');
+  task.items.forEach((it,k)=>{
+   const c=h('div','rcard');c.appendChild(h('div','rnum',`Таблица ${k+1}`));
+   const tb=h('table','tt');
+   tb.innerHTML='<tr><th>A</th><th>B</th><th>F</th></tr>'+it.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td><b>${OPS[it.op].f(r[0],r[1])}</b></td></tr>`).join('');
+   c.appendChild(tb);
+   const sel=h('select','pick wide','<option value="">— выберите операцию —</option>'+BIN.map(op=>`<option value="${op}">${OPS[op].s}  ${OPS[op].name}</option>`).join(''));
+   if(it.ans)sel.value=it.ans;
+   sel.onchange=()=>{it.ans=sel.value||null;c.classList.remove('ok','err');sel.classList.remove('ok','err');};
+   c.appendChild(sel);it.el=c;it.sel=sel;g.appendChild(c);
+  });
+  box.appendChild(g);
+ },
+ check(task){let s=0;task.items.forEach(it=>{const ok=it.ans===it.op;if(ok)s++;mark(it.el,ok);mark(it.sel,ok);});return {score:s,total:task.items.length};},
+ unans:task=>task.items.filter(it=>it.ans==null).length
+},
+{id:'stmt',title:'Значения высказываний',desc:'Вычислить значения сложных высказываний (1 — истина, 0 — ложь)',
+ instr:()=>'Вычислите значения высказываний (1 — истина, 0 — ложь)',
+ gen(c=8){
+  const ops=[...BIN,'not'];while(ops.length<c)ops.push(pick(BIN));
+  return {items:shuffle(ops).slice(0,c).map(op=>{
+   if(op==='not'){const a=atom();return {text:`¬(${a.text})`,correct:1-a.val,ans:null};}
+   const a=atom(),b=atom();return {text:`(${a.text}) ${OPS[op].s} (${b.text})`,correct:OPS[op].f(a.val,b.val),ans:null};
+  })};
+ },
+ render(task,box){task.items.forEach((it,k)=>{const row=h('div','row');row.appendChild(h('span','num',(k+1)+')'));row.appendChild(h('span','stmt',it.text));row.appendChild(h('span','eqs f','='));row.appendChild(bitCtl(it));it.row=row;box.appendChild(row);});},
+ check:checkList,unans:unansList
+},
+{id:'consts',title:'Значения выражений 1',desc:'Вычислить значения логических выражений из нулей и единиц',
+ instr:()=>'Вычислите значения выражений',
+ gen(c=5){return {items:exprItems(c,3,5,constLeaf,0)};},
+ render:renderExprList,check:checkList,unans:unansList
+},
+{id:'order',title:'Порядок действий',desc:'Расставить порядок выполнения логических операций',
+ instr:()=>'Расставьте порядок действий: нажимайте на знаки операций в том порядке, в котором они выполняются.<br><span style="font-size:18px;color:#5b6b82">Повторное нажатие на знак отменяет его и все следующие номера.</span>',
+ gen(c=5){
+  let items;
+  for(let t=0;t<60;t++){
+   items=[];const keys=new Set();
+   while(items.length<c){const e=genExpr(3,6,varLeaf(['A','B','C','D']),0);const tokens=tok(e,{over:false});const k=tkey(tokens);if(keys.has(k))continue;keys.add(k);items.push({tokens,canon:canon(tokens),deps:depsOf(e),ans:[]});}
+   if(items.filter(it=>it.tokens.some(x=>x.k==='(')).length>=Math.min(2,c))break;
+  }
+  return {items};
+ },
+ render(task,box){
+  task.items.forEach((it,k)=>{
+   const row=h('div','row');row.appendChild(h('span','num',(k+1)+')'));
+   let ex;
+   const upd=()=>{for(const id in ex.ops){const b=ex.ops[id].querySelector('.badge');const p=it.ans.indexOf(+id);b.textContent=p>=0?p+1:'';b.classList.remove('ok','err');}row.classList.remove('ok','err');};
+   ex=exprEl(it.tokens,id=>{if(cur.locked)return;const p=it.ans.indexOf(id);if(p>=0)it.ans.splice(p);else it.ans.push(id);upd();});
+   it.ops=ex.ops;upd();
+   const w=h('span','exprwrap');w.appendChild(ex.el);row.appendChild(w);
+   const rs=h('button','btn mini sec','Сбросить');rs.style.marginLeft='auto';rs.onclick=()=>{if(cur.locked)return;it.ans=[];upd();};row.appendChild(rs);
+   it.row=row;box.appendChild(row);
+  });
+ },
+ check(task){
+  let s=0;
+  task.items.forEach(it=>{
+   /* засчитывается любой правильный порядок: операция выполняется только после тех операций, результаты которых ей нужны */
+   const ready=(id,p)=>it.deps[id].every(d=>{const q=it.ans.indexOf(d);return q>=0&&q<p;});
+   const ok=it.ans.length===it.canon.length&&it.ans.every((id,p)=>ready(id,p));if(ok)s++;
+   for(const id in it.ops){const b=it.ops[id].querySelector('.badge');b.classList.remove('ok','err');const p=it.ans.indexOf(+id);
+    if(p<0){b.textContent='?';b.classList.add('err');}else b.classList.add(ready(+id,p)?'ok':'err');}
+   mark(it.row,ok);
+  });
+  return {score:s,total:task.items.length};
+ },
+ unans:task=>task.items.filter(it=>it.ans.length<it.canon.length).length
+},
+{id:'values',title:'Значения выражений 2',desc:'Вычислить значения выражений при заданных A, B, C, D',
+ instr:task=>'Вычислите значения выражений, если: <span class="f">'+Object.entries(task.env).map(([k,v])=>`${k} = ${v}`).join(', ')+'</span>',
+ gen(c=6){
+  let env;do{env={A:R(2),B:R(2),C:R(2),D:R(2)};}while(new Set(Object.values(env)).size<2);
+  return {env,items:exprItems(c,2,5,varLeaf(['A','B','C','D']),0.35,env)};
+ },
+ render:renderExprList,check:checkList,unans:unansList
+}
+];
+/* порядок и нумерация модулей */
+const ORDER=['tables','recog','stmt','order','consts','values'];
+MODULES.sort((a,b)=>ORDER.indexOf(a.id)-ORDER.indexOf(b.id));
+MODULES.forEach((m,i)=>{m.title=`${i+1}. ${m.title}`;});
+const MOD=Object.fromEntries(MODULES.map(m=>[m.id,m]));
+const fmt=n=>String(Math.round(n*10)/10).replace('.',',');
+
+/* ===== экраны ===== */
+function showMenu(){
+ cur=null;ctrl=null;setWhoLocked(false);const main=$('main');main.innerHTML='';
+ main.appendChild(h('h2','','Выберите задание'));
+ main.appendChild(h('div','intro','Каждый раз при входе в задание создаются новые примеры. Ошибки после проверки подсвечиваются жёлтым — исправьте их и проверьте снова.'));
+ const g=h('div','tiles');
+ const hl=h('button','tile help','<b>Справка</b><span>Шесть логических операций, таблицы истинности, порядок действий, примеры</span>');hl.onclick=openHelp;g.appendChild(hl);
+ MODULES.forEach(m=>{
+  const st=stats[m.id];
+  const t=h('button','tile',`<b>${m.title}</b><span>${m.desc}</span><small>${st?`Наборов: ${st.sets} · верно ${Math.round(100*st.score/st.total)}%`:'ещё не решали'}</small>`);
+  t.onclick=()=>openModule(m.id);g.appendChild(t);
+ });
+ const c=h('button','tile ctrl','<b>Контрольная работа</b><span>Все виды заданий, между ними можно переходить; одна проверка в конце, оценка по 10-балльной шкале</span>');c.onclick=startControl;g.appendChild(c);
+ main.appendChild(g);
+ if(Object.keys(stats).length){const ex=h('button','btn sec','Сохранить результаты тренировки (.txt)');ex.style.marginTop='18px';ex.onclick=exportTraining;main.appendChild(ex);}
+}
+function openModule(id){const m=MOD[id];cur={mod:m,task:m.gen(),control:false,locked:false};renderPage();}
+function renderPage(){
+ const m=cur.mod,main=$('main');main.innerHTML='';
+ const top=h('div','pagetop');
+ if(!cur.control){const back=h('button','btn sec','← Меню');back.onclick=showMenu;top.appendChild(back);}
+ else{
+  top.appendChild(h('div','step',`Контрольная работа · задание ${ctrl.i+1} из ${ctrl.tasks.length}`));
+  const nav=h('div','cnav');nav.id='cnav';top.appendChild(nav);
+ }
+ top.appendChild(h('h2','',m.title));
+ if(!cur.control){const hb=h('button','btn sec','Справка');hb.onclick=openHelp;top.appendChild(hb);}
+ main.appendChild(top);
+ main.appendChild(h('div','task',m.instr(cur.task)));
+ const box=h('div','box');m.render(cur.task,box);main.appendChild(box);
+ const foot=h('div','foot');const msg=h('div','msg','');msg.id='msg';foot.appendChild(msg);
+ const bt=h('div','btns');
+ if(!cur.control){
+  const chk=h('button','btn','Проверить');chk.id='chk';chk.onclick=doCheck;bt.appendChild(chk);
+  const nw=h('button','btn sec','Новые задания');nw.onclick=()=>openModule(m.id);bt.appendChild(nw);
+ }else{
+  const pv=h('button','btn sec','← Назад');pv.disabled=ctrl.i===0;pv.onclick=()=>goTask(ctrl.i-1);bt.appendChild(pv);
+  if(ctrl.i<ctrl.tasks.length-1){const nx=h('button','btn sec','Далее →');nx.onclick=()=>goTask(ctrl.i+1);bt.appendChild(nx);}
+  const fin=h('button','btn','Завершить работу');fin.onclick=finishControl;bt.appendChild(fin);
+  msg.innerHTML='<span style="color:#5b6b82">Между заданиями можно переходить и исправлять ответы. Проверка — один раз, после «Завершить работу».</span>';
+ }
+ foot.appendChild(bt);main.appendChild(foot);
+ if(cur.control)updNav();
+ window.scrollTo(0,0);
+}
+function doCheck(){
+ const m=cur.mod,msg=$('#msg');
+ const r=m.check(cur.task);
+ if(!cur.task.recorded){cur.task.recorded=true;const s=stats[m.id]||(stats[m.id]={sets:0,score:0,total:0});s.sets++;s.score+=r.score;s.total+=r.total;}
+ msg.innerHTML=r.score===r.total?'<b style="color:#15803d">Всё верно! Молодец!</b> Можно взять новые задания.':
+  `Верно: <b>${fmt(r.score)} из ${r.total}</b>. Ошибки выделены жёлтым — исправьте их и снова нажмите «Проверить».`;
+}
+/* ===== защита контрольной ===== */
+const inControl=()=>!!(ctrl&&!ctrl.done);
+function warn(text){const w=$('#warn');w.innerHTML=text+'<div style="text-align:right;margin-top:8px"><button class="btn mini" onclick="this.closest(\'.warn\').classList.remove(\'show\')">Понятно</button></div>';w.classList.add('show');}
+document.addEventListener('visibilitychange',()=>{
+ if(!inControl())return;
+ if(document.hidden){ctrl.leaves++;ctrl.leaveTimes.push(new Date().toLocaleTimeString('ru-RU'));}
+ else warn(`Во время контрольной работы нельзя уходить со страницы.<br>Уход отмечен в результате (всего: <b>${ctrl.leaves}</b>).`);
+});
+window.addEventListener('beforeunload',e=>{if(inControl()){e.preventDefault();e.returnValue='';}});
+document.addEventListener('contextmenu',e=>{if(inControl())e.preventDefault();});
+document.addEventListener('keydown',e=>{if(inControl()&&(e.key==='F5'||((e.ctrlKey||e.metaKey)&&['r','R','к','К','u','U','г','Г','p','P','з','З'].includes(e.key))))e.preventDefault();});
+function setWhoLocked(v){$('#fio').disabled=v;$('#cls').disabled=v;}
+/* ===== контрольная ===== */
+const fio=()=>$('#fio').value.trim(),cls=()=>$('#cls').value.trim();
+function startControl(){
+ if(!fio()||!cls()){alert('Перед контрольной работой введите фамилию и имя и выберите класс вверху страницы.');(fio()?$('#cls'):$('#fio')).focus();return;}
+ if(!confirm('Начать контрольную работу?\n\n• Справка во время работы недоступна.\n• Уходить со страницы нельзя — каждый уход отмечается в результате.\n• Между заданиями можно переходить и исправлять ответы.\n• Проверка одна — после кнопки «Завершить работу».'))return;
+ closeHelp();
+ const tasks=CONTROL_PLAN.map(([id,n])=>{const m=MOD[id];const task=m.gen(n);return {m,task,n0:m.unans(task)};});
+ ctrl={i:0,tasks,res:[],start:new Date(),leaves:0,leaveTimes:[]};setWhoLocked(true);loadControl();
+}
+function loadControl(){const t=ctrl.tasks[ctrl.i];cur={mod:t.m,task:t.task,control:true,locked:false};renderPage();}
+function goTask(i){if(i<0||i>=ctrl.tasks.length)return;ctrl.i=i;loadControl();}
+/* кружки-номера заданий: заполнено полностью / частично / не начато (без зелёного — он воспринимается как «верно») */
+function updNav(){
+ const nav=$('#cnav');if(!nav||!ctrl)return;nav.innerHTML='';
+ ctrl.tasks.forEach((t,i)=>{
+  const u=t.m.unans(t.task);
+  const b=h('button','cn'+(u===0?' done':u<t.n0?' part':'')+(i===ctrl.i?' cur':''),String(i+1));
+  b.title=u===0?'Все ответы даны':u<t.n0?`Не отвечено: ${u}`:'Задание ещё не начато';
+  b.onclick=()=>goTask(i);nav.appendChild(b);
+ });
+}
+document.addEventListener('change',()=>{if(inControl())setTimeout(updNav,0);});
+document.addEventListener('click',e=>{if(inControl()&&e.target.closest('main .tap, main .btn.mini'))setTimeout(updNav,0);});
+function finishControl(){
+ const u=ctrl.tasks.reduce((a,t)=>a+t.m.unans(t.task),0);
+ const where=ctrl.tasks.map((t,i)=>t.m.unans(t.task)?i+1:null).filter(Boolean).join(', ');
+ if(!confirm(u?`Не отвечено: ${u} (задания ${where}).\nЗавершить работу? Исправить ответы после этого будет нельзя.`:'Завершить работу и узнать результат?\nИсправить ответы после этого будет нельзя.'))return;
+ ctrl.res=ctrl.tasks.map(t=>{
+  cur={mod:t.m,task:t.task,control:true,locked:true};
+  const box=h('div','');t.m.render(t.task,box);   // проверка работает по элементам задания — строим их вне экрана
+  const r=t.m.check(t.task);return {title:t.m.title,score:r.score,total:r.total};
+ });
+ showResults();
+}
+function gradeOf(s,t){return Math.round(10*s/t);}
+function showResults(){
+ const sc=ctrl.res.reduce((a,r)=>a+r.score,0),tot=ctrl.res.reduce((a,r)=>a+r.total,0),g=gradeOf(sc,tot);
+ ctrl.sc=sc;ctrl.tot=tot;ctrl.grade=g;ctrl.done=true;ctrl.end=new Date();ctrl.fio=fio();ctrl.cls=cls();cur=null;
+ const main=$('main');main.innerHTML='';
+ main.appendChild(h('h2','','Результат контрольной работы'));
+ main.appendChild(h('div','',`<b>${esc(fio())}</b>, ${esc(cls())} класс`));
+ main.appendChild(h('table','res','<tr><th>Задание</th><th>Баллы</th></tr>'+ctrl.res.map(r=>`<tr><td>${r.title}</td><td>${fmt(r.score)} из ${r.total}</td></tr>`).join('')+`<tr><th>Итого</th><th>${fmt(sc)} из ${tot}</th></tr>`));
+ main.appendChild(h('div','grade',`Оценка: <b>${g}</b> из 10`));
+ main.appendChild(h('div','',ctrl.leaves?`<span style="color:#92400e">Уходов со страницы во время работы: <b>${ctrl.leaves}</b></span>`:'Со страницы во время работы не уходил(а).'));
+ const st=h('div','sendst','');st.id='sendst';main.appendChild(st);
+ const bt=h('div','btns');bt.style.marginTop='14px';
+ if(SCRIPT_URL){const rs=h('button','btn sec','Отправить учителю ещё раз');rs.id='resend';rs.style.display='none';rs.onclick=()=>sendResults(window._last);bt.appendChild(rs);}
+ const sv=h('button','btn','Сохранить результат (.txt)');sv.onclick=exportControl;bt.appendChild(sv);
+ const nw=h('button','btn sec','Следующий ученик');nw.onclick=()=>{$('#fio').value='';$('#cls').value='';for(const k in stats)delete stats[k];showMenu();$('#fio').focus();};bt.appendChild(nw);
+ const mn=h('button','btn sec','В меню');mn.onclick=showMenu;bt.appendChild(mn);
+ main.appendChild(bt);
+ ctrl.done=true;window._last=ctrl;
+ if(SCRIPT_URL)sendResults(ctrl);else st.innerHTML='Сохраните результат в файл и сдайте учителю.';
+}
+/* ===== отправка в Google-таблицу ===== */
+const durMin=c=>Math.max(1,Math.round((c.end-c.start)/60000));
+const LS_Q='logic_pending';
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const getQ=()=>{try{return JSON.parse(lsGet(LS_Q)||'[]')}catch(e){return[]}};
+const setQ=a=>lsSet(LS_Q,JSON.stringify(a));
+class SrvErr extends Error{}
+async function driveSend(data){
+  if(!SCRIPT_URL)throw new Error('no-url');
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(data)});
+    const j=await r.json();
+    if(j&&j.ok)return;
+    throw new SrvErr((j&&j.error)||'server');
+  }catch(e){
+    if(e instanceof SrvErr||(e&&e.name==='SyntaxError'))throw e;
+    /* браузер не дал прочитать ответ — отправляем «вслепую»; повтор безопасен: сервер отсеивает дубли по id */
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)});
+  }
+}
+async function flushPending(){
+  if(!SCRIPT_URL)return;
+  const q=getQ();if(!q.length)return;
+  const rest=[];
+  for(const d of q){try{await driveSend(d)}catch(e){rest.push(d)}}
+  setQ(rest);
+}
+function whyFail(e){
+  if(e&&e.name==='SyntaxError')return 'Google ответил обычной страницей, а не ответом скрипта (чаще всего у развёртывания доступ не «Все»).';
+  if(e instanceof SrvErr)return 'скрипт вернул ошибку: '+e.message;
+  return 'нет связи с script.google.com (интернет, школьный фильтр или блокировщик рекламы).';
+}
+function sendResults(c){
+  const st=$('#sendst'),rs=$('#resend');
+  st.className='sendst';st.innerHTML='Отправка результата учителю…';if(rs)rs.style.display='none';
+  if(!c.id)c.id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+  const mm=durMin(c),clean=t=>t.replace(/^\d+\.\s*/,'');
+  const data={id:c.id,time:c.end.toISOString(),name:c.fio,trainer:'Логические операции',sheet:'Логические операции',
+   headers:['Фамилия и имя','Класс','Оценка (10)','Баллы','Из','Минут','Уходов со страницы','Время уходов',...c.res.map(r=>clean(r.title)+' (из '+r.total+')')],
+   row:[c.fio,c.cls,c.grade,c.sc,c.tot,mm,c.leaves,c.leaveTimes.join(', '),...c.res.map(r=>r.score)],
+   /* прежний формат и поля для старой версии скрипта */
+   date:c.end.toLocaleString('ru-RU'),fio:c.fio,cls:c.cls,
+   tasks:c.res.map(r=>({title:clean(r.title),score:r.score,total:r.total})),
+   score:c.sc,grade:c.grade,leaves:c.leaves,leaveTimes:c.leaveTimes.join(', '),
+   points:c.sc,total:c.tot,stars:0,title:'Логические операции ('+c.cls+')',minutes:mm,
+   mistakes:c.res.map(r=>clean(r.title)+': '+r.score+'/'+r.total).join('; '),emuErrors:0};
+  driveSend(data)
+   .then(()=>{c.sent=true;setQ(getQ().filter(x=>x.id!==c.id));st.className='sendst ok';st.innerHTML='✔ Результат отправлен учителю (сохранён на Google Диске).';})
+   .catch(e=>{const q=getQ();if(!q.some(x=>x.id===c.id)){q.push(data);setQ(q);}
+    st.className='sendst err';st.innerHTML='Не удалось отправить результат.<br><small>Причина: '+esc(whyFail(e))+'</small><br>Нажмите «Отправить учителю ещё раз» или сохраните файл .txt.';if(rs)rs.style.display='';});
+}
+setTimeout(flushPending,800);
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fname(kind){const d=new Date();const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return `Логика_${kind}_${(fio()||'ученик').replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_')}_${cls().replace(/[\\/:*?"<>|\s]+/g,'')}_${ds}.txt`;}
+function download(text,name){const b=new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);}
+function exportControl(){
+ const c=window._last;
+ const lines=['Тренажёр «Логические операции» — контрольная работа',`Ученик: ${c.fio}`,`Класс: ${c.cls}`,`Дата: ${c.end.toLocaleString('ru-RU')}`,`Время работы: ${durMin(c)} мин`,'',
+  ...c.res.map(r=>`${r.title}: ${fmt(r.score)} из ${r.total}`),'',`Итого: ${fmt(c.sc)} из ${c.tot}`,`Оценка: ${c.grade} из 10`,
+  `Уходов со страницы во время работы: ${c.leaves}`+(c.leaves?` (${c.leaveTimes.join(', ')})`:'')];
+ download(lines.join('\r\n'),fname('контроль'));
+}
+function exportTraining(){
+ if(!fio()){alert('Введите фамилию и имя вверху страницы.');$('#fio').focus();return;}
+ const lines=['Тренажёр «Логические операции» — тренировка',`Ученик: ${fio()}`,`Класс: ${cls()}`,`Дата: ${new Date().toLocaleString('ru-RU')}`,''];
+ MODULES.forEach(m=>{const s=stats[m.id];lines.push(s?`${m.title}: наборов ${s.sets}, верно ${s.score} из ${s.total} (${Math.round(100*s.score/s.total)}%)`:`${m.title}: не решали`);});
+ download(lines.join('\r\n'),fname('тренировка'));
+}
+/* ===== справка ===== */
+function buildHelp(){
+ let s='<button class="btn sec hclose" onclick="closeHelp()">Закрыть ✕</button><h2>Справка: логические операции</h2>'+
+ '<p>Высказывание может быть <b>истинным (1)</b> или <b>ложным (0)</b>. Логическая операция по значениям простых высказываний вычисляет значение сложного высказывания.</p><div class="hgrid">';
+ ['not',...BIN].forEach(op=>{
+  const o=OPS[op];
+  const tb=op==='not'?'<tr><th>A</th><th class="f">¬A</th></tr><tr><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td></tr>':
+   `<tr><th>A</th><th>B</th><th class="f">A ${o.s} B</th></tr>`+[[0,0],[0,1],[1,0],[1,1]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${o.f(r[0],r[1])}</td></tr>`).join('');
+  s+=`<div class="hcard"><div class="hname">${o.name[0].toUpperCase()+o.name.slice(1)} <span class="f">${o.s}</span></div><div>Читается: «${o.read}»</div><div class="halt">Ещё записывают: <span class="f">${o.alt}</span></div><div class="hrule">${o.rule}</div><table class="tt small">${tb}</table><div class="hex"><b>Пример:</b> ${o.ex}</div></div>`;
+ });
+ s+='</div><h3>Порядок выполнения операций</h3><ol><li>действия в скобках;</li><li>инверсия <span class="f">¬</span>;</li><li>конъюнкция <span class="f">∧</span>;</li><li>дизъюнкция <span class="f">∨</span> и исключающее ИЛИ <span class="f">⊕</span>;</li><li>импликация <span class="f">→</span>;</li><li>эквивалентность <span class="f">↔</span>.</li></ol>'+
+ '<p>Операции одного уровня выполняются слева направо. Если инверсия стоит перед скобкой, она выполняется сразу после действий в этой скобке.</p>'+
+ '<p>Если операции не зависят друг от друга, их можно выполнять в любом порядке — результат не изменится. Например, в выражении <span class="f">¬C ∨ (D ⊕ A)</span> можно сначала вычислить <span class="f">¬C</span>, а можно скобку. Главное — <span class="f">∨</span> выполняется последней, потому что ей нужны результаты обеих.</p>'+
+ '<h3>Пример вычисления</h3><p><span class="f">A = 0, B = 1, C = 0.&nbsp;&nbsp; F = (A ⊕ B) ∧ ¬C → A</span></p>'+
+ '<ol class="hsteps"><li><span class="f">A ⊕ B = 0 ⊕ 1 = 1</span> — скобки: значения разные;</li><li><span class="f">¬C = ¬0 = 1</span> — НЕ;</li><li><span class="f">1 ∧ 1 = 1</span> — И;</li><li><span class="f">1 → A = 1 → 0 = 0</span> — импликация последней.</li></ol><p><b>Ответ: F = 0</b> (выражение ложно).</p>'+
+ '<h3>Истинно ли сложное высказывание?</h3><p>A = «Число 12 чётное» = 1,&nbsp; B = «Число 12 больше 20» = 0</p>'+
+ '<table class="res"><tr><th>Высказывание</th><th>Запись</th><th>Значение</th></tr>'+
+ '<tr><td>«12 чётное И 12 больше 20»</td><td class="f">A ∧ B</td><td class="f">1 ∧ 0 = 0</td></tr>'+
+ '<tr><td>«Либо 12 чётное, либо больше 20»</td><td class="f">A ⊕ B</td><td class="f">1 ⊕ 0 = 1</td></tr>'+
+ '<tr><td>«Если 12 больше 20, то 12 чётное»</td><td class="f">B → A</td><td class="f">0 → 1 = 1</td></tr>'+
+ '<tr><td>«Если 12 чётное, то 12 больше 20»</td><td class="f">A → B</td><td class="f">1 → 0 = 0</td></tr></table>'+
+ '<div class="hnote"><b>Логика и обычная речь — не одно и то же</b><ul>'+
+ '<li>«Пойдёшь в кино или останешься дома?» — выбрать можно только одно. Это <span class="f">A ⊕ B</span>, а не <span class="f">A ∨ B</span>: логическое ИЛИ разрешает оба варианта сразу (<span class="f">1 ∨ 1 = 1</span>).</li>'+
+ '<li>«Если идёт дождь, то асфальт мокрый». Дождя нет, а асфальт мокрый — проехала поливалка. Правило не нарушено: <span class="f">0 → 1 = 1</span>. Импликация ничего не утверждает о случае, когда условие ложно.</li></ul></div>';
+ $('#hbox').innerHTML=s;
+}
+function openHelp(){if(inControl())return;$('#help').classList.add('show');$('#help').scrollTop=0;}
+function closeHelp(){$('#help').classList.remove('show');}
+$('#help').addEventListener('click',e=>{if(e.target.id==='help')closeHelp();});
+buildHelp();showMenu();
+</script>
+</body>
+</html>
